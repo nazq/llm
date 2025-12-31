@@ -122,6 +122,7 @@ impl HuggingFace {
             normalize_response,
             None,
             None,
+            None, // extra_headers
         )
     }
 }

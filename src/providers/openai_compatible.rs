@@ -387,6 +387,7 @@ impl<T: OpenAIProviderConfig> OpenAICompatibleProvider<T> {
         normalize_response: Option<bool>,
         embedding_encoding_format: Option<String>,
         embedding_dimensions: Option<u32>,
+        extra_headers: Option<std::collections::HashMap<String, String>>,
     ) -> Self {
         let extra_body = match extra_body {
             Some(serde_json::Value::Object(map)) => map,
@@ -413,6 +414,7 @@ impl<T: OpenAIProviderConfig> OpenAICompatibleProvider<T> {
             normalize_response: normalize_response.unwrap_or(true),
             embedding_encoding_format,
             embedding_dimensions,
+            extra_headers,
             client,
             _phantom: PhantomData,
         }

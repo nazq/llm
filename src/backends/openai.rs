@@ -288,6 +288,7 @@ impl OpenAI {
         web_search_user_location_approximate_country: Option<String>,
         web_search_user_location_approximate_city: Option<String>,
         web_search_user_location_approximate_region: Option<String>,
+        extra_headers: Option<std::collections::HashMap<String, String>>,
     ) -> Result<Self, LLMError> {
         let api_key_str = api_key.into();
         if api_key_str.is_empty() {
@@ -315,6 +316,7 @@ impl OpenAI {
                 normalize_response,
                 embedding_encoding_format,
                 embedding_dimensions,
+                extra_headers,
             ),
             enable_web_search: enable_web_search.unwrap_or(false),
             web_search_context_size,

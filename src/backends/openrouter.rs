@@ -122,6 +122,7 @@ impl OpenRouter {
             normalize_response,
             None,
             None,
+            None, // extra_headers
         )
     }
 }

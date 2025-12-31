@@ -202,6 +202,8 @@ pub struct LLMBuilder {
     extra_headers: Option<std::collections::HashMap<String, String>>,
     /// Pre-configured HTTP client for connection pooling
     client: Option<reqwest::Client>,
+    /// Enable metrics collection (timing, usage) for non-streaming calls
+    enable_metrics: Option<bool>,
 }
 
 impl LLMBuilder {
@@ -529,6 +531,31 @@ impl LLMBuilder {
     /// ```
     pub fn client(mut self, client: reqwest::Client) -> Self {
         self.client = Some(client);
+        self
+    }
+
+    /// Enables metrics collection for non-streaming chat calls.
+    ///
+    /// When enabled, `ChatResponse::metrics()` will return timing and usage
+    /// information. For streaming calls, use `Tracked::new()` wrapper instead.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// let llm = LLMBuilder::new()
+    ///     .backend(LLMBackend::OpenAI)
+    ///     .api_key("...")
+    ///     .enable_metrics(true)
+    ///     .build()?;
+    ///
+    /// let response = llm.chat("Hello").await?;
+    /// if let Some(metrics) = response.metrics() {
+    ///     println!("Duration: {:?}", metrics.duration);
+    ///     println!("Tokens/sec: {:?}", metrics.tokens_per_second());
+    /// }
+    /// ```
+    pub fn enable_metrics(mut self, enable: bool) -> Self {
+        self.enable_metrics = Some(enable);
         self
     }
 
@@ -1454,6 +1481,11 @@ impl LLMBuilder {
                 cfg.jitter = j;
             }
             final_provider = Box::new(crate::resilient_llm::ResilientLLM::new(final_provider, cfg));
+        }
+
+        // Wrap with metrics collection if enabled
+        if self.enable_metrics.unwrap_or(false) {
+            final_provider = Box::new(crate::metrics::MetricsProvider::new(final_provider));
         }
 
         // Wrap with memory capabilities if memory is configured

@@ -125,6 +125,7 @@ impl Cohere {
             normalize_response,
             embedding_encoding_format,
             embedding_dimensions,
+            None, // extra_headers
         )
     }
 }
